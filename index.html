@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Prime Clock</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js"></script>
+</head>
+<body>
+<div id="time">
+    <span id="hours">123</span><span id="minutes">:15</span><span id="seconds">:13</span>
+</div>
+<a id="quote" href="https://twitter.com/robinhouston/status/1400369854926970881">
+    168, the number of hours in a week, is also the number of prime
+    numbers that can be written with three decimal digits
+</a>
+<div id="settings">
+    <p>
+        <label>
+            Minutes
+            <input type="checkbox" id="show-seconds" checked>
+            <span class="slider"></span>
+            <span class="spacing"></span>
+            Show seconds
+        </label>
+    </p>
+    <p>
+        Week starts on
+        <select id="week-start">
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
+            <option value="6">Saturday</option>
+            <option value="0">Sunday</option>
+        </select>
+    </p>
+</div>
+</body>
+</html>

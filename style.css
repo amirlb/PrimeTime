@@ -1,0 +1,83 @@
+html, body, #time {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background: linear-gradient(150deg, indigo, darkblue);
+    font-family: 'Verdana', sans-serif;
+}
+
+#time {
+    color: white;
+    line-height: 100vh;
+    text-align: center;
+    font-size: min(40vh, 12vw);
+    cursor: default;
+}
+
+#quote {
+    position: fixed;
+    width: 40vw;
+    bottom: 3vh;
+    left: 3vh;
+    font-size: 2vh;
+    color: lightgray;
+    text-decoration: none;
+}
+
+#settings {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding: 3vh;
+    font-size: 2.5vh;
+    color: lightgray;
+    opacity: 0.5;
+    cursor: default;
+}
+#settings:hover {
+    opacity: 1;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    background: #aaa;
+    margin-left: 1vh;
+    width: 10vh;
+    height: 3.5vh;
+    border-radius: 1.75vh;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    top: 0.35vh;
+    left: 0.4vh;
+    height: 2.7vh;
+    width: 2.7vh;
+    border-radius: 1.4vh;
+    background: white;
+    transition: 0.4s;
+}
+input[type="checkbox"]:checked + .slider:before {
+    transform: translateX(6.5vh);
+}
+.spacing {
+    margin-right: 13vh;
+}
+
+select {
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    border: none;
+    font: inherit;
+    color: white;
+    text-decoration: underline;
+}
