@@ -17,6 +17,9 @@ body {
     font-size: min(40vh, 12vw);
     cursor: default;
 }
+#seconds {
+    font-size: 90%;
+}
 
 #quote {
     position: fixed;
