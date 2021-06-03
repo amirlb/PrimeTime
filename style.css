@@ -12,7 +12,7 @@ body {
 
 #time {
     color: white;
-    line-height: 100vh;
+    line-height: 90vh;
     text-align: center;
     font-size: min(40vh, 12vw);
     cursor: default;
