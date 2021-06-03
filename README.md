@@ -7,4 +7,4 @@ and prime numbers under 1000.
 So it's possible to create a clock with this as the hours display!
 
 You can use it here:
-[<img src="https://amirlb.github.io/prime-clock/screenshot.png">](https://amirlb.github.io/prime-clock/)
+[<img src="https://amirlb.github.io/PrimeTime/screenshot.png">](https://amirlb.github.io/PrimeTime/)
