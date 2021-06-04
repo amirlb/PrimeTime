@@ -84,12 +84,12 @@ function update_rotation(elt, value) {
     }
     const outer = elt.querySelector('.outer');
     outer.setAttribute('value', value);
-    const rotation = outer.animate({transform: 'translateY(-12vw) ' + transform}, 400);
+    const rotation = outer.animate({transform: 'translateY(-14vw) ' + transform}, 400);
     rotation.onfinish = function() {
         const inner = elt.querySelector('.inner');
         if (inner) {
             inner.style.transform = transform + getComputedStyle(inner).transform;
-            outer.style.transform = 'translateY(-12vw)';
+            outer.style.transform = 'translateY(-14vw)';
         }
     };
 }
@@ -203,6 +203,6 @@ function create_dodecahedron(elt, value) {
     const current_face = update_faces(elt, value);
     const sign = current_face.classList.contains('reversed') ? '' : '-';
     const angle = sign + (value % 5 / 5) + 'turn';
-    elt.querySelector('.outer').style.transform = 'translateY(-12vw)';
+    elt.querySelector('.outer').style.transform = 'translateY(-14vw)';
     elt.querySelector('.inner').style.transform = `rotateZ(${angle}) ` + TRANSFORMS[current_face.id];
 }
