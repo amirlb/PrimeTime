@@ -34,6 +34,8 @@ function ordinal(x) {
         return `${x}st`;
     } else if (x % 10 === 2 && x != 12) {
         return `${x}nd`;
+    } else if (x % 10 === 3 && x != 13) {
+        return `${x}rd`;
     } else {
         return `${x}th`;
     }
