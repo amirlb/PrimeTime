@@ -14,6 +14,10 @@ function show_seconds() {
     return document.getElementById('show-seconds').checked;
 }
 
+function show_symmetries() {
+    return document.getElementById('show-symmetries').checked;
+}
+
 function first_day_of_week() {
     return parseInt(document.getElementById('week-start').value);
 }
@@ -28,11 +32,20 @@ function format_2_digits(x) {
 function refresh() {
     const now = new Date();
 
-    document.getElementById('minutes').innerText = ':' + format_2_digits(now.getMinutes());
-    if (show_seconds()) {
-        document.getElementById('seconds').innerText = ':' + format_2_digits(now.getSeconds());
+    if (show_symmetries()) {
+        dodecahedron_set(document.getElementById('minutes'), now.getMinutes());
+        if (show_seconds()) {
+            dodecahedron_set(document.getElementById('seconds'), now.getSeconds());
+        } else {
+            document.getElementById('seconds').innerText = '';
+        }
     } else {
-        document.getElementById('seconds').innerText = '';
+        document.getElementById('minutes').innerText = ':' + format_2_digits(now.getMinutes());
+        if (show_seconds()) {
+            document.getElementById('seconds').innerText = ':' + format_2_digits(now.getSeconds());
+        } else {
+            document.getElementById('seconds').innerText = '';
+        }
     }
 
     const day_in_week = (7 + now.getDay() - first_day_of_week()) % 7;
@@ -65,5 +78,6 @@ function week_start_changed() {
 document.addEventListener('DOMContentLoaded', function () {
     refresh_loop();
     document.getElementById('show-seconds').addEventListener('change', refresh);
+    document.getElementById('show-symmetries').addEventListener('change', refresh);
     document.getElementById('week-start').addEventListener('change', week_start_changed);
 });
