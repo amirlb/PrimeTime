@@ -29,6 +29,16 @@ function format_2_digits(x) {
         return x.toString();
 }
 
+function ordinal(x) {
+    if (x % 10 === 1 && x != 11) {
+        return `${x}st`;
+    } else if (x % 10 === 2 && x != 12) {
+        return `${x}nd`;
+    } else {
+        return `${x}th`;
+    }
+}
+
 function refresh() {
     const now = new Date();
 
@@ -51,6 +61,8 @@ function refresh() {
     const day_in_week = (7 + now.getDay() - first_day_of_week()) % 7;
     const hour_in_week = day_in_week * 24 + now.getHours();
     document.getElementById('hours').innerText = HOUR_NAMES[hour_in_week];
+
+    document.getElementById('hours-description').innerText = `is the ${ordinal(hour_in_week + 1)} prime`;
 }
 
 function refresh_loop() {
