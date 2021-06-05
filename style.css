@@ -153,8 +153,8 @@ svg.pentagon > text.current {
 .icosahedron-outer {
     display: inline-block;
     transform-style: preserve-3d;
-    transform-origin: 11.99vw 4.2075vw;
-    padding-left: 4vw;
+    transform-origin: 12.49vw 4.2075vw;
+    padding-left: 4.5vw;
     width: 20vw;
 }
 .icosahedron-inner {
