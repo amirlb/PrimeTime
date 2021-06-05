@@ -45,7 +45,7 @@ function refresh() {
     const now = new Date();
 
     if (show_symmetries()) {
-        dodecahedron_set(document.getElementById('minutes'), now.getMinutes());
+        icosahedron_set(document.getElementById('minutes'), now.getMinutes());
         if (show_seconds()) {
             dodecahedron_set(document.getElementById('seconds'), now.getSeconds());
         } else {

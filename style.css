@@ -95,6 +95,14 @@ input[type="checkbox"]:checked + .slider:before {
     text-decoration: underline;
 }
 
+svg {
+    position: absolute;
+    transition: 0.4s;
+}
+.hidden {
+    opacity: 0;
+}
+
 svg > path {
     stroke: lightgray;
     fill: none;
@@ -102,55 +110,72 @@ svg > path {
 svg > text {
     text-anchor: middle;
     dominant-baseline: middle;
-    font-size: 32px;
     fill: lightgray;
     transition: 0.2s;
 }
-.current {
-    font-size: 44px;
+svg > text.current {
     fill: white;
 }
-.number-0 {transform: translateY(80px);}
-.number-1 {transform: rotate(0.2turn) translateY(80px);}
-.number-2 {transform: rotate(0.4turn) translateY(80px);}
-.number-3 {transform: rotate(0.6turn) translateY(80px);}
-.number-4 {transform: rotate(0.8turn) translateY(80px);}
-.reversed > .number-1 {transform: rotate(0.8turn) translateY(80px);}
-.reversed > .number-2 {transform: rotate(0.6turn) translateY(80px);}
-.reversed > .number-3 {transform: rotate(0.4turn) translateY(80px);}
-.reversed > .number-4 {transform: rotate(0.2turn) translateY(80px);}
 
-.outer {
+.dodecahedron-outer {
     display: inline-block;
-    transform-origin: 13.93vw 6.76vw;
     transform-style: preserve-3d;
+    transform-origin: 13.93vw 6.76vw;
     padding-left: 6vw;
     width: 22vw;
 }
-.inner {
+.dodecahedron-inner {
     position: absolute;
-    transform-origin: 7.93vw 6.76vw;
     transform-style: preserve-3d;
+    transform-origin: 7.93vw 6.76vw;
 }
 .pentagon {
-    position: absolute;
     width: 15.86vw;
     height: 15.08vw;
     transform-origin: 7.93vw 6.76vw;
-    transition: 0.4s;
 }
-.hidden {
-    opacity: 0;
+.pentagon-number-0 {transform: translateY(78px);}
+.pentagon-number-1 {transform: rotate(0.2turn) translateY(78px);}
+.pentagon-number-2 {transform: rotate(0.4turn) translateY(78px);}
+.pentagon-number-3 {transform: rotate(0.6turn) translateY(78px);}
+.pentagon-number-4 {transform: rotate(0.8turn) translateY(78px);}
+.reversed > .pentagon-number-1 {transform: rotate(0.8turn) translateY(78px);}
+.reversed > .pentagon-number-2 {transform: rotate(0.6turn) translateY(78px);}
+.reversed > .pentagon-number-3 {transform: rotate(0.4turn) translateY(78px);}
+.reversed > .pentagon-number-4 {transform: rotate(0.2turn) translateY(78px);}
+svg.pentagon > text {
+    font-size: 32px;
 }
-#face-00 {transform: translateZ(-10.712vw);}
-#face-05 {transform: rotateZ(-54deg) rotateY(63.43495deg) rotateZ(-126deg) translateZ(-10.712vw);}
-#face-10 {transform: rotateZ(162deg) rotateY(63.43495deg) rotateZ(90deg) rotateX(180deg) translateZ(-10.712vw);}
-#face-15 {transform: rotateZ(18deg) rotateY(63.43495deg) rotateZ(90deg) translateZ(-10.712vw);}
-#face-20 {transform: rotateZ(90deg) rotateY(63.43495deg) rotateZ(18deg) translateZ(-10.712vw);}
-#face-25 {transform: rotateZ(-126deg) rotateY(63.43495deg) rotateZ(162deg) rotateX(180deg) translateZ(-10.712vw);}
-#face-30 {transform: rotateX(180deg) translateZ(-10.712vw);}
-#face-35 {transform: rotateZ(-54deg) rotateY(63.43495deg) rotateZ(-126deg) rotateX(180deg) translateZ(-10.712vw);}
-#face-40 {transform: rotateZ(162deg) rotateY(63.43495deg) rotateZ(90deg) translateZ(-10.712vw);}
-#face-45 {transform: rotateZ(18deg) rotateY(63.43495deg) rotateZ(90deg) rotateX(180deg) translateZ(-10.712vw);}
-#face-50 {transform: rotateZ(90deg) rotateY(63.43495deg) rotateZ(18deg) rotateX(180deg) translateZ(-10.712vw);}
-#face-55 {transform: rotateZ(-126deg) rotateY(63.43495deg) rotateZ(162deg) translateZ(-10.712vw);}
+svg.pentagon > text.current {
+    font-size: 44px;
+}
+
+.icosahedron-outer {
+    display: inline-block;
+    transform-style: preserve-3d;
+    transform-origin: 11.99vw 4.2075vw;
+    padding-left: 4vw;
+    width: 20vw;
+}
+.icosahedron-inner {
+    position: absolute;
+    transform-style: preserve-3d;
+    transform-origin: 7.99vw 4.2075vw;
+}
+.triangle {
+    width: 15.98vw;
+    height: 12.5375vw;
+    transform-origin: 7.99vw 4.2075vw;
+    stroke-width: 2px;
+}
+.triangle-number-0 {transform: translateY(92px);}
+.triangle-number-1 {transform: rotate(120deg) translateY(92px);}
+.triangle-number-2 {transform: rotate(240deg) translateY(92px);}
+.reversed > .triangle-number-1 {transform: rotate(240deg) translateY(92px);}
+.reversed > .triangle-number-2 {transform: rotate(120deg) translateY(92px);}
+svg.triangle > text {
+    font-size: 42px;
+}
+svg.triangle > text.current {
+    font-size: 60px;
+}
