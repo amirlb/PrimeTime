@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <title>Document</title>
     <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         svg {
             position: absolute;
         }
@@ -165,7 +174,13 @@
             scene.add(new THREE.LineLoop(face.perimeter, perimeterMaterial));
         }
 
-        renderer.setSize(600, 600);
+        function onResize() {
+            const size = Math.min(document.body.clientWidth, document.body.clientHeight);
+            renderer.setSize(size, size);
+        }
+        window.addEventListener('resize', onResize, false);
+        onResize();
+
         renderer.setClearColor('white');
         document.body.appendChild(renderer.domElement);
 
