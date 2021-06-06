@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        svg {
+            position: absolute;
+        }
+        path {
+            stroke: black;
+            fill: lightgray;
+            fill-opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <script src="three.js"></script>
+    <script>
+        "use strict";
+
+        Math.TAU = Math.PI * 2;
+
+        function torus_point(x, y) {
+            return [
+                Math.cos(Math.TAU * x), Math.sin(Math.TAU * x),
+                Math.cos(Math.TAU * y), Math.sin(Math.TAU * y)
+            ];
+        }
+
+        function create_hexagons_model(n_cols, n_rows) {
+            const faces = [];
+            for (let i = 0; i < n_cols; i++) {
+                for (let j = 0; j < n_rows; j++) {
+                    faces.push([
+                        torus_point(i / n_cols + 0 / (6 * n_cols), j / n_rows + 0 / (2 * n_rows)),
+                        torus_point(i / n_cols + 1 / (6 * n_cols), j / n_rows + 1 / (2 * n_rows)),
+                        torus_point(i / n_cols + 3 / (6 * n_cols), j / n_rows + 1 / (2 * n_rows)),
+                        torus_point(i / n_cols + 4 / (6 * n_cols), j / n_rows + 0 / (2 * n_rows)),
+                        torus_point(i / n_cols + 3 / (6 * n_cols), j / n_rows - 1 / (2 * n_rows)),
+                        torus_point(i / n_cols + 1 / (6 * n_cols), j / n_rows - 1 / (2 * n_rows))
+                    ]);
+                    faces.push([
+                        torus_point(i / n_cols + 3 / (6 * n_cols), j / n_rows + 1 / (2 * n_rows)),
+                        torus_point(i / n_cols + 4 / (6 * n_cols), j / n_rows + 2 / (2 * n_rows)),
+                        torus_point(i / n_cols + 6 / (6 * n_cols), j / n_rows + 2 / (2 * n_rows)),
+                        torus_point(i / n_cols + 7 / (6 * n_cols), j / n_rows + 1 / (2 * n_rows)),
+                        torus_point(i / n_cols + 6 / (6 * n_cols), j / n_rows + 0 / (2 * n_rows)),
+                        torus_point(i / n_cols + 4 / (6 * n_cols), j / n_rows + 0 / (2 * n_rows))
+                    ]);
+                }
+            }
+            return faces;
+        }
+
+        function scalar(vec1, vec2) {
+            let res = 0;
+            for (let i = 0; i < vec1.length; i++) {
+                res += vec1[i] * vec2[i];
+            }
+            return res;
+        }
+
+        function add_scaled(vec1, factor, vec2) {
+            return vec1.map(function(x, i) {return x + factor * vec2[i];});
+        }
+
+        function normalize(vec) {
+            const norm = Math.sqrt(scalar(vec, vec));
+            return vec.map(function(x) {return x / norm;});
+        }
+
+        function graham_schmidt(matrix) {
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < i; j++) {
+                    const factor = -scalar(matrix[i], matrix[j]) / scalar(matrix[j], matrix[j]);
+                    matrix[i] = add_scaled(matrix[i], factor, matrix[j]);
+                }
+                matrix[i] = normalize(matrix[i]);
+            }
+        }
+
+        function default_projection() {
+            return {
+                matrix: [
+                    [1, 0, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 0, 1]
+                ],
+                rot: 0,
+                vrot: 0
+            };
+        }
+
+        function random_projection() {
+            let matrix = [
+                [Math.random(), Math.random(), Math.random(), Math.random()],
+                [Math.random(), Math.random(), Math.random(), Math.random()],
+                [Math.random(), Math.random(), Math.random(), Math.random()],
+                [Math.random(), Math.random(), Math.random(), Math.random()]
+            ];
+            graham_schmidt(matrix);
+            return {
+                matrix,
+                rot: Math.TAU * Math.random(),
+                vrot: Math.random() * 0.02 - 0.01
+            };
+        }
+
+        function advance_projection(projection) {
+            const angle = Math.random() * 0.1 - 0.05;
+            const matrix = [
+                add_scaled(projection.matrix[0], 0.002, projection.matrix[2]),
+                add_scaled(projection.matrix[1], 0.002, projection.matrix[3]),
+                add_scaled(projection.matrix[2], angle, projection.matrix[3]),
+                add_scaled(projection.matrix[3], -angle, projection.matrix[2])
+            ];
+            graham_schmidt(matrix);
+            return {
+                matrix,
+                rot: projection.rot + projection.vrot,
+                vrot: (projection.vrot + Math.random() * 0.006 - 0.003) * 0.95
+            };
+        }
+
+        function project_point(point, projection) {
+            const trans = projection.matrix.map(function(row) {return scalar(point, row);});
+            return new THREE.Vector3(
+                trans[0],
+                trans[1],
+                trans[2] * Math.cos(projection.rot) + trans[3] * Math.sin(projection.rot)
+            );
+        }
+
+        function project_face(face, projection) {
+            return face.map(function(point) {return project_point(point, projection);});
+        }
+
+        function average_vector3(vecs) {
+            let res = new THREE.Vector3(0, 0, 0);
+            for (const vec of vecs) {
+                res.addScaledVector(vec, 1 / vecs.length);
+            }
+            return res;
+        }
+
+        const model = create_hexagons_model(3, 5);
+
+        const renderer = new THREE.WebGLRenderer({antialias: true});
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-2, 2, -2, 2, -2, 2);
+        const perimeterMaterial = new THREE.LineBasicMaterial({color: 'black'});
+        const interiorMaterial = new THREE.MeshBasicMaterial({color: 'lightgray', opacity: 0.8, transparent: true});
+        const face_geometries = model.map(function() {
+            return {
+                perimeter: new THREE.BufferGeometry(),
+                interior: new THREE.BufferGeometry()
+            };
+        });
+        for (const face of face_geometries) {
+            scene.add(new THREE.Mesh(face.interior, interiorMaterial));
+        }
+        for (const face of face_geometries) {
+            scene.add(new THREE.LineLoop(face.perimeter, perimeterMaterial));
+        }
+
+        renderer.setSize(600, 600);
+        renderer.setClearColor('white');
+        document.body.appendChild(renderer.domElement);
+
+        function set_view(model, projection) {
+            for (let i = 0; i < model.length; i++) {
+                const points = project_face(model[i], projection);
+
+                const center = average_vector3(points);
+                const vertices = [];
+                for (let j = 0; j < points.length; j++) {
+                    vertices.push(center, points[j], points[(j + 1) % points.length]);
+                }
+
+                face_geometries[i].perimeter.setFromPoints(points);
+                face_geometries[i].interior.setFromPoints(vertices);
+            }
+            renderer.render(scene, camera);
+        }
+
+        let projection = random_projection();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            set_view(model, projection);
+            projection = advance_projection(projection);
+        }
+        animate();
+    </script>
+</body>
+</html>
