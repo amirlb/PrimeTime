@@ -74,6 +74,12 @@
             return vec1.map(function(x, i) {return x + factor * vec2[i];});
         }
 
+        function add_scaled_2(vec1, factor, mixture, vec2, vec3) {
+            const factor2 = factor * Math.cos(mixture),
+                  factor3 = factor * Math.sin(mixture);
+            return vec1.map(function(x, i) {return x + factor2 * vec2[i] + factor2 * vec3[i];});
+        }
+
         function normalize(vec) {
             const norm = Math.sqrt(scalar(vec, vec));
             return vec.map(function(x) {return x / norm;});
@@ -97,8 +103,10 @@
                     [0, 0, 1, 0],
                     [0, 0, 0, 1]
                 ],
-                rot: 0,
-                vrot: 0
+                rot1: 0,
+                vrot1: 0,
+                rot2: 0,
+                vrot2: 0
             };
         }
 
@@ -112,33 +120,36 @@
             graham_schmidt(matrix);
             return {
                 matrix,
-                rot: Math.TAU * Math.random(),
-                vrot: Math.random() * 0.02 - 0.01
+                rot1: Math.TAU * Math.random(),
+                vrot1: Math.random() * 0.02 - 0.01,
+                rot2: Math.TAU * Math.random(),
+                vrot2: Math.random() * 0.02 - 0.01
             };
         }
 
         function advance_projection(projection) {
             const angle = Math.random() * 0.1 - 0.05;
             const matrix = [
-                add_scaled(projection.matrix[0], 0.002, projection.matrix[2]),
-                add_scaled(projection.matrix[1], 0.002, projection.matrix[3]),
+                add_scaled_2(projection.matrix[0], 0.002, projection.rot1, projection.matrix[2], projection.matrix[3]),
+                add_scaled_2(projection.matrix[1], 0.002, projection.rot2, projection.matrix[2], projection.matrix[3]),
                 add_scaled(projection.matrix[2], angle, projection.matrix[3]),
                 add_scaled(projection.matrix[3], -angle, projection.matrix[2])
             ];
             graham_schmidt(matrix);
             return {
                 matrix,
-                rot: projection.rot + projection.vrot,
-                vrot: (projection.vrot + Math.random() * 0.006 - 0.003) * 0.95
+                rot1: projection.rot1 + projection.vrot1,
+                vrot1: (projection.vrot1 + Math.random() * 0.006 - 0.003) * 0.95,
+                rot2: projection.rot2 + projection.vrot2,
+                vrot2: (projection.vrot2 + Math.random() * 0.006 - 0.003) * 0.95
             };
         }
 
         function project_point(point, projection) {
-            const trans = projection.matrix.map(function(row) {return scalar(point, row);});
             return new THREE.Vector3(
-                trans[0],
-                trans[1],
-                trans[2] * Math.cos(projection.rot) + trans[3] * Math.sin(projection.rot)
+                scalar(point, projection.matrix[0]),
+                scalar(point, projection.matrix[1]),
+                scalar(point, projection.matrix[2])
             );
         }
 
@@ -147,7 +158,7 @@
         }
 
         function average_vector3(vecs) {
-            let res = new THREE.Vector3(0, 0, 0);
+            let res = new THREE.Vector3();
             for (const vec of vecs) {
                 res.addScaledVector(vec, 1 / vecs.length);
             }
@@ -160,7 +171,7 @@
         const scene = new THREE.Scene();
         const camera = new THREE.OrthographicCamera(-2, 2, -2, 2, -2, 2);
         const perimeterMaterial = new THREE.LineBasicMaterial({color: 'black'});
-        const interiorMaterial = new THREE.MeshBasicMaterial({color: 'lightgray', opacity: 0.8, transparent: true});
+        const interiorMaterial = new THREE.MeshBasicMaterial({color: 'lightgray', opacity: 0.9, transparent: true});
         const face_geometries = model.map(function() {
             return {
                 perimeter: new THREE.BufferGeometry(),
@@ -182,19 +193,23 @@
         onResize();
 
         renderer.setClearColor('white');
+        renderer.setPixelRatio(2);
         document.body.appendChild(renderer.domElement);
 
         function set_view(model, projection) {
             for (let i = 0; i < model.length; i++) {
                 const points = project_face(model[i], projection);
+                face_geometries[i].perimeter.setFromPoints(points);
 
                 const center = average_vector3(points);
                 const vertices = [];
                 for (let j = 0; j < points.length; j++) {
-                    vertices.push(center, points[j], points[(j + 1) % points.length]);
+                    points[j] = points[j].lerp(center, 0.01);
                 }
-
-                face_geometries[i].perimeter.setFromPoints(points);
+                for (let j = 0; j < points.length; j++) {
+                    vertices.push(center, points[j], points[(j + 1) % points.length]);
+                    vertices.push(center, points[(j + 1) % points.length], points[j]);
+                }
                 face_geometries[i].interior.setFromPoints(vertices);
             }
             renderer.render(scene, camera);
