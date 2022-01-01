@@ -14,40 +14,10 @@
             background: linear-gradient(150deg, indigo, darkblue);
             font-family: 'Verdana', sans-serif;
         }
-        polygon {
-            fill: none;
-            stroke: lightgray;
-            stroke-width: 1.5;
-        }
-        svg text {
-            text-anchor: middle;
-            dominant-baseline: middle;
-            fill: lightgray;
-        }
-        svg text.day:not(.current) {
-            opacity: 0.5;
-        }
-        svg text.current {
-            fill: white;
-        }
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
 <body>
-    <svg width="600" height="600">
-        <defs>
-            <radialGradient id="radGrad">
-                <stop offset="80%" stop-color="white" stop-opacity="1"/>
-                <stop offset="99%" stop-color="white" stop-opacity="0"/>
-            </radialGradient>
-            <mask id="mask">
-                <circle id="c" cx="300" cy="300" r="250" fill="url(#radGrad)" stroke="none" />
-            </mask>
-        </defs>
-        <g id="faces" mask="url(#mask)" />
-    </svg>
+    <canvas id="kleinodedron" width="600" height="600"></canvas>
     <script>
         "use strict";
 
@@ -63,28 +33,10 @@
         // the i-th neighbor is between vertices (i+offset) and (i+offset+1) of the face
         // the edge between vertices 0,1 says "sun", between vertices 1,2 says "mon" etc
 
-        for (let i = 0; i < FACES.length; i++) {
-            const face = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            face.id = `face_${i}`;
-            face.innerHTML = `
-                <polygon />
-                <text class="hour" />
-                <text class="day" />
-                <text class="day" />
-                <text class="day" />
-                <text class="day" />
-                <text class="day" />
-                <text class="day" />
-                <text class="day" />
-            `;
-            document.getElementById('faces').appendChild(face);
-
-        }
-
         function project([w, x, y]) {
             return [
-                300 + 0.001 * Math.round(250000 * x / w),
-                300 - 0.001 * Math.round(250000 * y / w)
+                250 + 250 * x / w,
+                250 - 250 * y / w
             ];
         };
 
@@ -116,69 +68,89 @@
                     }
                 }
             }
-
-            const front_face = document.getElementById('face_0');
-            front_face.getElementsByClassName('hour')[0].classList.add('current');
-            for (let i = 0; i < 7; i++) {
-                const day_text = front_face.getElementsByClassName('day')[i];
-                if (i === day_val) {
-                    day_text.classList.add('current');
-                } else {
-                    day_text.classList.remove('current');
-                }
-            }
         }
 
         const DAYS_OF_THE_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        function set_inner_html(elt, x) {
-            const value = elt.innerHTML;
-            if (value !== x) {
-                elt.innerHTML = x;
-            }
-        }
-        function draw(points) {
+        function draw(points, intensities) {
+            const buffer = document.createElement('canvas');
+            buffer.width = 500;
+            buffer.height = 500;
+            const ctx = buffer.getContext('2d');
+            ctx.beginPath();
+            ctx.strokeStyle = 'lightgray';
+            ctx.lineWidth = 2;
+            ctx.font = '200px Verdana';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             for (let i = 0; i < FACES.length; i++) {
                 const vertices = FACES[i].map(function(pt) {return project(points[pt]);});
-                const elt = document.getElementById(`face_${i}`);
-                const polygon = elt.getElementsByTagName('polygon')[0];
-                const hour_text = elt.getElementsByClassName('hour')[0];
-                polygon.setAttribute('points', vertices.map(function([x, y]) {return `${x},${y}`;}).join(' '));
+                ctx.moveTo(vertices[0][0], vertices[0][1]);
+                for (let j = 0; j < vertices.length; j++) {
+                    const vertex = vertices[(j+1) % vertices.length];
+                    ctx.lineTo(vertex[0], vertex[1]);
+                }
                 let center_x = vertices.reduce(function(tot, pt) {return tot + pt[0]}, 0) / 7,
                     center_y = vertices.reduce(function(tot, pt) {return tot + pt[1]}, 0) / 7;
-                center_x = 0.99 * center_x + 0.01 * 300;
-                center_y = 0.99 * center_y + 0.01 * 300;
-                const r = Math.sqrt(Math.pow(center_x / 300 - 1, 2) + Math.pow(center_y / 300 - 1, 2));
-                if (r < 0.8) {
-                    set_inner_html(hour_text, numbers[i].toString());
-                    hour_text.classList.remove('hidden');
-                    hour_text.style.fontSize = `${48 * (1 - 0.5 * r - 0.65 * r * r)}px`;
-                    hour_text.setAttribute('x', center_x);
-                    hour_text.setAttribute('y', center_y);
-                } else {
-                    set_inner_html(hour_text, '');
-                    hour_text.classList.add('hidden');
+                center_x = 0.99 * center_x + 0.01 * 250;
+                center_y = 0.99 * center_y + 0.01 * 250;
+                const r = Math.sqrt(Math.pow(center_x / 250 - 1, 2) + Math.pow(center_y / 250 - 1, 2));
+                if (r < 0.97) {
+                    const font_size = 48 * (1 - 0.42 * r - 0.45 * r * r);
+                    ctx.fillStyle = 'rgba(211, 211, 211, 0.8)';
+                    for (const [hour, day, intensity] of intensities) {
+                        if (numbers[i] === hour) {
+                            const brightness = 211 + 44 * Math.sqrt(intensity);
+                            const alpha = 0.8 + 0.2 * Math.sqrt(intensity);
+                            ctx.fillStyle = `rgb(${brightness}, ${brightness}, ${brightness}, ${alpha})`;
+                            break;
+                        }
+                    }
+                    ctx.save();
+                    ctx.translate(center_x, center_y);
+                    ctx.scale(font_size / 200, font_size / 200);
+                    ctx.fillText(numbers[i].toString(), 0, 0);
+                    ctx.restore();
                 }
                 const offset = offsets[i];
                 for (let j = 0; j < 7; j++) {
-                    const day_text = elt.getElementsByClassName('day')[j];
-                    const marked = day_text.classList.contains('current');
                     const [x1, y1] = vertices[(j + offset) % 7],
                           [x2, y2] = vertices[(j + offset + 1) % 7];
                     const x = 0.41 * x1 + 0.41 * x2 + 0.18 * center_x,
                           y = 0.41 * y1 + 0.41 * y2 + 0.18 * center_y;
-                    const r = Math.sqrt(Math.pow(x / 300 - 1, 2) + Math.pow(y / 300 - 1, 2));
-                    if (r < 0.8) {
-                        set_inner_html(day_text, DAYS_OF_THE_WEEK[j]);
-                        day_text.classList.remove('hidden');
-                        day_text.style.fontSize = `${(marked ? 44 : 32) * (1 - 0.5 * r - 0.65 * r * r)}px`;
-                        const angle = Math.atan2(y2 - y1, x2 - x1);
-                        day_text.setAttribute('transform', `translate(${x}, ${y}) rotate(${angle * 360 / Math.TAU})`);
-                    } else {
-                        set_inner_html(day_text, '');
-                        day_text.classList.add('hidden');
+                    const r = Math.sqrt(Math.pow(x / 250 - 1, 2) + Math.pow(y / 250 - 1, 2));
+                    if (r < 0.97) {
+                        let font_size = 32 * (1 - 0.42 * r - 0.45 * r * r);
+                        ctx.fillStyle = 'rgba(211, 211, 211, 0.5)';
+                        for (const [hour, day, intensity] of intensities) {
+                            if ((numbers[i] === hour) && (j === day)) {
+                                font_size *= 1 + 0.4 * Math.sqrt(intensity);
+                                const brightness = 211 + 44 * Math.sqrt(intensity);
+                                const alpha = 0.5 + 0.5 * Math.sqrt(intensity);
+                                ctx.fillStyle = `rgb(${brightness}, ${brightness}, ${brightness}, ${alpha})`;
+                                break;
+                            }
+                        }
+                        ctx.save();
+                        ctx.translate(x, y);
+                        ctx.rotate(Math.atan2(y2 - y1, x2 - x1));
+                        ctx.scale(font_size / 200, font_size / 200);
+                        ctx.fillText(DAYS_OF_THE_WEEK[j], 0, 0);
+                        ctx.restore();
                     }
                 }
             }
+            ctx.closePath();
+            ctx.stroke();
+
+            const real_ctx = document.getElementById('kleinodedron').getContext('2d');
+            const mask = real_ctx.createRadialGradient(300, 300, 200, 300, 300, 247);
+            mask.addColorStop(0, 'black');
+            mask.addColorStop(1, 'transparent');
+            real_ctx.fillStyle = mask;
+            real_ctx.globalCompositeOperation = 'copy';
+            real_ctx.fillRect(0, 0, 600, 600);
+            real_ctx.globalCompositeOperation = 'source-in';
+            real_ctx.drawImage(buffer, 50, 50);
         }
 
         function rotation_matrix(angle) {
@@ -267,47 +239,42 @@
         }
 
         update_numbers();
-        draw(POINTS);
+        draw(POINTS, [[hour_val, day_val, 1]]);
         window.setInterval(function() {
             const hour_val_now = (hour_val + 1) % 24;
             const day_val_now = hour_val_now > 0 ? day_val : (day_val + 1) % 7;
             if ((day_val_now !== day_val) || (hour_val_now !== hour_val)) {
-                let face_ind;
-                for (face_ind = 0; face_ind < 10; face_ind++) {
-                    const face = document.getElementById(`face_${face_ind}`);
-                    const hour_text = face.getElementsByClassName('hour')[0];
-                    if (hour_text.innerHTML === hour_val_now.toString()) {
-                        const day_text = face.getElementsByClassName('day')[day_val_now];
-                        hour_text.classList.add('current');
-                        day_text.classList.add('current');
-                        break;
-                    }
-                }
                 const theta_1 = Math.TAU / 4 + Math.TAU * (day_val - NEIGHBORS[hour_val].indexOf(hour_val_now)) / 7,
                       theta_2 = -Math.TAU / 28 + Math.TAU * (NEIGHBORS[hour_val_now].indexOf(hour_val) + 2 - day_val_now) / 7;
                 const transform = multiply_matrices(rotation_matrix(theta_2), multiply_matrices(translation_matrix(-1.090549663507086), rotation_matrix(theta_1)));
                 const log_transform = log_ISO_2_1(transform);
-                const start_ts = Date.now();
-                const animation_id = window.setInterval(function () {
-                    let frac = (Date.now() - start_ts) / 2000;
-                    if (frac >= 1) {
-                        const face = document.getElementById(`face_${face_ind}`);
-                        const hour_text = face.getElementsByClassName('hour')[0];
-                        const day_text = face.getElementsByClassName('day')[day_val_now];
-                        hour_text.classList.remove('current');
-                        day_text.classList.remove('current');
+                let start_ts, previous_ts;
+                function draw_frame(timestamp) {
+                    if (start_ts === undefined) {
+                        start_ts = timestamp;
+                    }
 
+                    if (timestamp === previous_ts) {
+                        window.requestAnimationFrame(draw_frame);
+                        return;
+                    }
+                    previous_ts = timestamp;
+
+                    const frac = (timestamp - start_ts) / 2000;
+                    if (frac >= 1) {
                         day_val = day_val_now;
                         hour_val = hour_val_now;
                         update_numbers();
-                        draw(POINTS);
-                        window.clearInterval(animation_id);
+                        draw(POINTS, [[hour_val, day_val, 1]]);
                         return;
                     }
 
-                    let matrix = exp_ISO_2_1(log_transform.map(function(coef) {return coef * frac}));
-                    draw(POINTS.map(function(point) {return apply_matrix(matrix, point);}));
-                }, 15);
+                    const matrix = exp_ISO_2_1(log_transform.map(function(coef) {return coef * frac}));
+                    const points = POINTS.map(function(point) {return apply_matrix(matrix, point);})
+                    draw(points, [[hour_val, day_val, 1-frac], [hour_val_now, day_val_now, frac]]);
+                    window.requestAnimationFrame(draw_frame);
+                }
+                window.requestAnimationFrame(draw_frame);
             }
         }, 6000);
     </script>
