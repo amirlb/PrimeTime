@@ -6,7 +6,7 @@ const KLEINOHEDRON_NEIGHBORS = [[22, 23, 5, 6, 17, 1, 21], [3, 19, 20, 21, 0, 17
 
 function kleinohedron_set(elt, value) {
     if (!elt.querySelector('.kleinohedron')) {
-        const pixels = window.screen.availWidth * window.devicePixelRatio * 0.3;
+        const pixels = Math.max(window.screen.availWidth, window.screen.availHeight) * window.devicePixelRatio * 0.3;
         elt.innerHTML = `<canvas class="kleinohedron" width="${pixels}" height="${pixels}"></canvas>`;
         kleinohedron_update_faces(elt, value);
     } else {
