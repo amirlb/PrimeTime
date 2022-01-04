@@ -180,7 +180,7 @@ svg.pentagon > text.current {
     display: inline-block;
     transform-style: preserve-3d;
     transform-origin: 12.49vw 4.2075vw;
-    padding-left: 4.5vw;
+    padding-left: 4.75vw;
     width: 20vw;
 }
 .icosahedron-inner {
@@ -204,4 +204,10 @@ svg.triangle > text {
 }
 svg.triangle > text.current {
     font-size: 60px;
+}
+
+.kleinohedron {
+    width: 30vw;
+    margin-top: -15vw;
+    transform: translateY(9.25vw);
 }

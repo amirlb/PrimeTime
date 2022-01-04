@@ -45,6 +45,9 @@ function refresh() {
     const now = new Date();
 
     if (show_symmetries()) {
+        const last_second_in_hour = (now.getSeconds() === 59) && (now.getMinutes() === 59);
+        kleinohedron_set(document.getElementById('hours'), now.getDay() * 24 + now.getHours() + (last_second_in_hour ? 1 : 0));
+        document.getElementById('hours-description').innerText = '';
         icosahedron_set(document.getElementById('minutes'), now.getMinutes());
         if (show_seconds()) {
             dodecahedron_set(document.getElementById('seconds'), now.getSeconds());
@@ -58,13 +61,11 @@ function refresh() {
         } else {
             document.getElementById('seconds').innerText = '';
         }
+        const day_in_week = (7 + now.getDay() - first_day_of_week()) % 7;
+        const hour_in_week = day_in_week * 24 + now.getHours();
+        document.getElementById('hours').innerText = HOUR_NAMES[hour_in_week];
+        document.getElementById('hours-description').innerText = `is the ${ordinal(hour_in_week + 1)} prime`;
     }
-
-    const day_in_week = (7 + now.getDay() - first_day_of_week()) % 7;
-    const hour_in_week = day_in_week * 24 + now.getHours();
-    document.getElementById('hours').innerText = HOUR_NAMES[hour_in_week];
-
-    document.getElementById('hours-description').innerText = `is the ${ordinal(hour_in_week + 1)} prime`;
 }
 
 function refresh_loop() {
