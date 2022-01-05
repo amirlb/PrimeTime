@@ -90,9 +90,49 @@ function week_start_changed() {
     }
 }
 
+function show_help() {
+    document.getElementById('help-screen-background').style.display = 'flex';
+    if (show_symmetries()) {
+        document.getElementById('help-screen-symmetries').style.display = 'block';
+        document.getElementById('help-screen-primes').style.display = 'none';
+    } else {
+        document.getElementById('help-screen-primes').style.display = 'block';
+        document.getElementById('help-screen-symmetries').style.display = 'none';
+
+        // Explain how to calculate the time from the prime number displayed
+        const now = new Date();
+        const day_in_week = (7 + now.getDay() - first_day_of_week()) % 7;
+        const hour_in_week = day_in_week * 24 + now.getHours();
+        document.getElementById('help-current-prime').innerText = parseInt(HOUR_NAMES[hour_in_week]);
+        document.getElementById('help-prime-index').innerText = ordinal(hour_in_week + 1);
+        if (day_in_week === 0) {
+            document.getElementById('help-place-in-list').innerText = 'under 24';
+        } else if (day_in_week === 1) {
+            document.getElementById('help-place-in-list').innerText = 'between 24 and 48=2×24';
+        } else {
+            document.getElementById('help-place-in-list').innerText = `between ${day_in_week * 24}=${day_in_week}×24 and ${(day_in_week + 1) * 24}=${day_in_week + 1}×24`;
+        }
+        document.getElementById('help-day-index').innerText = ordinal(day_in_week + 1);
+        document.getElementById('help-day-name').innerText = document.getElementById('week-start').getElementsByTagName('option')[day_in_week].innerText;
+        if (day_in_week === 0) {
+            document.getElementById('help-hour-calculation').innerText = ordinal(now.getHours() + 1);
+        } else {
+            document.getElementById('help-hour-calculation').innerText = `${hour_in_week} - ${day_in_week * 24} + 1 = ${ordinal(now.getHours() + 1)}`;
+        }
+        document.getElementById('help-hour-name').innerText = (now.getHours() % 12 === 0 ? '12' : now.getHours() % 12)+ (now.getHours() < 12 ? 'am' : 'pm');
+    }
+}
+
+function hide_help() {
+    document.getElementById('help-screen-background').style.display = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     refresh_loop();
     document.getElementById('show-seconds').addEventListener('change', refresh);
     document.getElementById('show-symmetries').addEventListener('change', refresh);
     document.getElementById('week-start').addEventListener('change', week_start_changed);
+    document.getElementById('help-button').addEventListener('click', show_help);
+    document.getElementById('help-screen-background').addEventListener('click', hide_help);
+    document.querySelectorAll('#help-screen a').forEach(function(elt) {elt.addEventListener('click', function(e) {e.stopPropagation();});});
 });

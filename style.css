@@ -121,6 +121,65 @@ input[type="checkbox"]:checked + .slider:before {
     text-decoration: underline;
 }
 
+#help-button {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: calc(max(2vh, 1vw));
+    font-size: calc(max(3vh, 2vw));
+    color: lightgray;
+    opacity: 0.5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+#help-button-info-sign {
+    position: relative;
+    width: calc(max(3vh, 2vw));
+    height: calc(max(3vh, 2vw));
+    margin-right: calc(max(0.75vh, 0.5vw));
+}
+#help-button:hover {
+    opacity: 1;
+}
+#help-screen-background {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 2vh;
+}
+#help-screen {
+    position: relative;
+    bottom: 5vh;
+    border: 1px solid white;
+    outline: 1px solid darkblue;
+    padding: 0 2vw;
+    background-color: midnightblue;
+    opacity: 0.9;
+    color: lightgray;
+    overflow-y: auto;
+    font-size: calc(max(2.5vh, 2vw));
+}
+#help-screen a {
+    color: inherit;
+}
+#help-screen-close-button {
+    position: inherit;
+    margin-top: 1vw;
+    margin-right: -1vw;
+    float: right;
+    width: calc(max(5vh, 3vw));
+    height: calc(max(5vh, 3vw));
+}
+#help-hour-calculation {
+    white-space: nowrap;
+}
+
 svg {
     position: absolute;
     transition: 0.4s;
