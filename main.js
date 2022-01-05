@@ -95,6 +95,11 @@ function show_help() {
     if (show_symmetries()) {
         document.getElementById('help-screen-symmetries').style.display = 'block';
         document.getElementById('help-screen-primes').style.display = 'none';
+
+        // Hack for safari: the shapes override the text so we hide them
+        if (navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1) {
+            document.getElementById('time-container').style.display = 'none';
+        }
     } else {
         document.getElementById('help-screen-primes').style.display = 'block';
         document.getElementById('help-screen-symmetries').style.display = 'none';
@@ -117,7 +122,7 @@ function show_help() {
         if (day_in_week === 0) {
             document.getElementById('help-hour-calculation').innerText = ordinal(now.getHours() + 1);
         } else {
-            document.getElementById('help-hour-calculation').innerText = `${hour_in_week} - ${day_in_week * 24} + 1 = ${ordinal(now.getHours() + 1)}`;
+            document.getElementById('help-hour-calculation').innerText = `${hour_in_week + 1} - ${day_in_week * 24} = ${ordinal(now.getHours() + 1)}`;
         }
         document.getElementById('help-hour-name').innerText = (now.getHours() % 12 === 0 ? '12' : now.getHours() % 12)+ (now.getHours() < 12 ? 'am' : 'pm');
     }
@@ -125,6 +130,12 @@ function show_help() {
 
 function hide_help() {
     document.getElementById('help-screen-background').style.display = 'none';
+
+    // Hack for safari: we hid this when showing the help screen, need to restore
+    document.getElementById('time-container').style.display = 'flex';
+    document.getElementById('seconds').innerText = '';
+    document.getElementById('minutes').innerText = '';
+    refresh();
 }
 
 document.addEventListener('DOMContentLoaded', function () {
