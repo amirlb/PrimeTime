@@ -98,7 +98,7 @@ function show_help() {
 
         // Hack for safari: the shapes override the text so we hide them
         if (navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1) {
-            document.getElementById('time-container').style.display = 'none';
+            document.getElementById('time-container').style.visibility = 'hidden';
         }
     } else {
         document.getElementById('help-screen-primes').style.display = 'block';
@@ -132,10 +132,7 @@ function hide_help() {
     document.getElementById('help-screen-background').style.display = 'none';
 
     // Hack for safari: we hid this when showing the help screen, need to restore
-    document.getElementById('time-container').style.display = 'flex';
-    document.getElementById('seconds').innerText = '';
-    document.getElementById('minutes').innerText = '';
-    refresh();
+    document.getElementById('time-container').style.visibility = 'visible';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
